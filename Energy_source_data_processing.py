@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 input_file = "C:/_VAMK/_Coding/Data/Input/Total energy consumption by energy source 2010Q1-2024Q3.csv"
 output_file = "C:/_VAMK/_Coding/Data/Output/Energy_source_output.csv"
@@ -44,5 +45,16 @@ output_df = pd.DataFrame(output_data, columns=["Quarter",
                                                col_heading[14],]) #"5 Others"])
 # Save to output file
 output_df.to_csv(output_file, sep=",", index=False)
-
 print(f"Processed data saved to {output_file}")
+
+# plotting the points 
+x = [row[0] for row in output_data]
+y = [row[2] for row in output_data]
+
+plt.xlabel(col_heading[1])
+plt.ylabel("Quarter")
+plt.title(col_heading[1])
+
+plt.plot(x, y)
+plt.show()
+
