@@ -46,13 +46,13 @@ for _, row in df.iterrows():
     # Create 24-hour flag data
     for hour_ in range(0, 24):
         if begin_hour <= hour_ <= begin_hour + 1:
-            flag_ = 1 
+            flag_ = 2 
         elif begin_hour + 1 < hour_ < end_hour - 1:
-            flag_ = 2
+            flag_ = 3
         elif end_hour - 1 <= hour_ <= end_hour:
-            flag_ = 1
+            flag_ = 2
         else:
-            flag_ = 0
+            flag_ = 1
         output_hourly_data.append([year_, month_, months_[month_], day_, iso_weekday, weekdays_[iso_weekday], hour_, flag_])
 
 # last month
