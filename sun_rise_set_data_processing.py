@@ -23,10 +23,12 @@ for _, row in df.iterrows():
     year_ = row["Year"]
     month_ = row["Month"]
     day_ = row["Day"]
+    sunrise_ = float(row["Sunrise"].split(":")[0] + "." + row["Sunrise"].split(":")[1])
+    sunset_ = float(row["Sunset"].split(":")[0] + "." + row["Sunset"].split(":")[1])
     duration_ = float(row["Length"].split(":")[0] + "." + row["Length"].split(":")[1])
     iso_weekday = date(int(year_), int(month_), int(day_)).isoweekday()
 
-    output_daily_data.append([year_, month_, months_[month_], day_, iso_weekday, weekdays_[iso_weekday], duration_])
+    output_daily_data.append([year_, month_, months_[month_], day_, iso_weekday, weekdays_[iso_weekday], sunrise_, sunset_, duration_])
 
     if prev_month != month_:
         if prev_month != '0':
@@ -62,7 +64,7 @@ output_monthly_data.append([year_, prev_month, months_[prev_month], month_total]
 output_df = pd.DataFrame(output_hourly_data, columns=["Year", "Month_No", "Month", "Day", "Iso_Weekday", "Day of the Week", "Hour", "Sun_Flag"])
 output_df.to_csv(output_hourly_file, sep=",", index=False)
 # Save daily output
-output_df = pd.DataFrame(output_daily_data, columns=["Year", "Month_No", "Month", "Day", "Iso_Weekday", "Day of the Week", "Duration"])
+output_df = pd.DataFrame(output_daily_data, columns=["Year", "Month_No", "Month", "Day", "Iso_Weekday", "Day of the Week", "Sunrise", "Sunset", "Duration"])
 output_df.to_csv(output_daily_file, sep=",", index=False)
 # Save monthly output
 output_df = pd.DataFrame(output_monthly_data, columns=["Year", "Month_No", "Month", "Duration"])
