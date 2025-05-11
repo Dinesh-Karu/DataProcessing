@@ -24,8 +24,8 @@ for _, row in df.iterrows():
     year_ = row["Year"]
     month_ = row["Month"]
     day_ = row["Day"]
-    sunrise_ = float(row["Sunrise"].split(":")[0] + "." + row["Sunrise"].split(":")[1])
-    sunset_ = float(row["Sunset"].split(":")[0] + "." + row["Sunset"].split(":")[1])
+    sunrise_ = int(row["Sunrise"].split(":")[0]) + int(row["Sunrise"].split(":")[1])/60
+    sunset_ = int(row["Sunset"].split(":")[0]) + int(row["Sunset"].split(":")[1])/60
     duration_ = float(row["Length"].split(":")[0] + "." + row["Length"].split(":")[1])
     iso_weekday = date(int(year_), int(month_), int(day_)).isoweekday()
 
