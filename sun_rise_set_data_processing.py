@@ -16,6 +16,7 @@ weekdays_ = {1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat", 7: "Sun
 # Dictionay with months labeled
 months_ = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr",	5: "May", 6: "Jun",	7: "Jul", 8: "Aug",	9: "Sep", 10: "Oct", 11: "Nov",	12: "Dec"}
 prev_month = '0'
+prev_year = '0'
 month_total = 0
 
 # Process each row in input data
@@ -32,11 +33,12 @@ for _, row in df.iterrows():
 
     if prev_month != month_:
         if prev_month != '0':
-            output_monthly_data.append([year_, prev_month, months_[prev_month], month_total])
+            output_monthly_data.append([prev_year, prev_month, months_[prev_month], month_total])
         month_total = duration_
     else:
         month_total += duration_
     prev_month = month_
+    prev_year = year_
 
     begin_hour = int(row["Sunrise"].split(":")[0])
     if int(row["Sunrise"].split(":")[1]) > 30:  ##if minutes part is more than 30
@@ -58,7 +60,7 @@ for _, row in df.iterrows():
         output_hourly_data.append([year_, month_, months_[month_], day_, iso_weekday, weekdays_[iso_weekday], hour_, flag_])
 
 # last month
-output_monthly_data.append([year_, prev_month, months_[prev_month], month_total])
+output_monthly_data.append([prev_year, prev_month, months_[prev_month], month_total])
 
 # Save hourly output
 output_df = pd.DataFrame(output_hourly_data, columns=["Year", "Month_No", "Month", "Day", "Iso_Weekday", "Day of the Week", "Hour", "Sun_Flag"])
