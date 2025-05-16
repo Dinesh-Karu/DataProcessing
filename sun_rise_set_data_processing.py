@@ -40,30 +40,36 @@ for _, row in df.iterrows():
     prev_month = month_
     prev_year = year_
 
-    begin_hour = int(row["Sunrise"].split(":")[0])
+    sun_begin_hour = int(row["Sunrise"].split(":")[0])
     if int(row["Sunrise"].split(":")[1]) > 30:  ##if minutes part is more than 30
-        begin_hour += 1
-    end_hour = int(row["Sunset"].split(":")[0]) 
+        sun_begin_hour += 1
+    sun_end_hour = int(row["Sunset"].split(":")[0]) 
     if int(row["Sunset"].split(":")[1]) > 30:   ##if minutes part is more than 30
-        end_hour += 1
+        sun_end_hour += 1
     
     # Create 24-hour flag data
-    for hour_ in range(0, 24):
-        if begin_hour <= hour_ <= begin_hour + 1:
+    for curr_hour in range(0, 24):
+        if sun_begin_hour <= curr_hour <= sun_begin_hour + 1:
             flag_ = 2 
-        elif begin_hour + 1 < hour_ < end_hour - 1:
+        elif sun_begin_hour + 1 < curr_hour < sun_end_hour - 1:
             flag_ = 3
-        elif end_hour - 1 <= hour_ <= end_hour:
+        elif sun_end_hour - 1 <= curr_hour <= sun_end_hour:
             flag_ = 2
         else:
             flag_ = 1
-        output_hourly_data.append([year_, month_, months_[month_], day_, iso_weekday, weekdays_[iso_weekday], hour_, flag_])
+
+        if sun_begin_hour < curr_hour and curr_hour < sun_end_hour:
+            sun_light = 1
+        else:
+            sun_light = 0
+
+        output_hourly_data.append([year_, month_, months_[month_], day_, iso_weekday, weekdays_[iso_weekday], curr_hour, flag_, sun_light])
 
 # last month
 output_monthly_data.append([prev_year, prev_month, months_[prev_month], month_total])
 
 # Save hourly output
-output_df = pd.DataFrame(output_hourly_data, columns=["Year", "Month_No", "Month", "Day", "Iso_Weekday", "Day of the Week", "Hour", "Sun_Flag"])
+output_df = pd.DataFrame(output_hourly_data, columns=["Year", "Month_No", "Month", "Day", "Iso_Weekday", "Day of the Week", "Hour", "Sun_Flag", "Sun_Light"])
 output_df.to_csv(output_hourly_file, sep=",", index=False)
 # Save daily output
 output_df = pd.DataFrame(output_daily_data, columns=["Year", "Month_No", "Month", "Day", "Iso_Weekday", "Day of the Week", "Sunrise", "Sunset", "Duration"])
