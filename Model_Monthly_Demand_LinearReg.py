@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+import statsmodels.api as sm
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_percentage_error, mean_absolute_error
 
@@ -11,8 +12,15 @@ dates = pd.date_range(start='2020-01-01', periods=len(df), freq='ME')
 df['Date'] = dates
 df.set_index('Date', inplace=True)
 
-# Define features and target
-X = df[['Avg_temperature','Max_temperature']]#,'Min_temperature','Sun_Duration'
+# One-hot encode categorical variables
+categorical_vars = ['Month_No']
+df_encoded = pd.get_dummies(df, columns=categorical_vars, drop_first=True)
+# Add all encoded columns
+month_cols = [col for col in df_encoded.columns if col.startswith('Month_No_')]
+
+base_features = ['Avg_temperature','Max_temperature']#,'Min_temperature','Sun_Duration'
+
+X = df_encoded[base_features]# + month_cols
 y = df['Demand_GWh']
 
 # Train-test split
@@ -34,18 +42,24 @@ residuals = y_test - y_test_pred
 standardized_residuals = (residuals - np.mean(residuals)) / np.std(residuals)
 
 # Evaluation metrics
-print("Linear Regression Model Evaluation:")
+print("Multiple Linear Regression Model Evaluation:")
 print(f" - MSE:  {mean_squared_error(y_test, y_test_pred):.3f}")
 print(f" - RMSE: {np.sqrt(mean_squared_error(y_test, y_test_pred)):.3f}")
 print(f" - MAE:  {mean_absolute_error(y_test, y_test_pred):.3f}")
 print(f" - MAPE: {mean_absolute_percentage_error(y_test, y_test_pred):.3f}")
 print(f" - R²:   {r2_score(y_test, y_test_pred):.3f}")
 
-# Coefficients
-print("\nModel Coefficients:")
-for name, coef in zip(X.columns, model.coef_):
-    print(f" - {name}: {coef:.4f}")
-print(f" - Intercept: {model.intercept_:.4f}")
+# Add intercept column manually for statsmodels
+X_train_sm = sm.add_constant(X_train)
+X_train_sm = X_train_sm.astype(float)
+y_train = y_train.astype(float)  # Add this line to ensure y is also numeric
+
+# Fit OLS model
+ols_model = sm.OLS(y_train, X_train_sm).fit()
+
+# Print statistical summary
+print("\nOLS Regression Summary (statsmodels):")
+print(ols_model.summary())
 
 residuals_train = y_train - y_train_pred
 residuals_test = y_test - y_test_pred
@@ -76,8 +90,8 @@ plt.plot(dates_train, y_train, label='Training Data (Actual)', color='blue')
 plt.plot(dates_train, y_train_pred, label='Fitted Values (Train)', color='green', linestyle='--')
 plt.plot(dates_test, y_test, label='Test Data (Actual)', color='orange')
 plt.plot(dates_test, y_test_pred, label='Forecast (Test)', color='red', linestyle='--')
-plt.title("Monthly Electricity Demand Forecast\n(Linear Regression Model)")
-plt.xlabel("Date")
+plt.title("Monthly Electricity Demand Forecast\n(Multiple Linear Regression Model)")
+plt.xlabel("Month")
 plt.ylabel("Demand (GWh)")
 plt.legend(loc='upper left')
 plt.grid(True)
